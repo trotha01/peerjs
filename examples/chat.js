@@ -159,8 +159,8 @@ function connect(c) {
     chatbox.appendChild(header);
     chatbox.appendChild(messages);
 
-    $('.filler').hide();
-    $('#connections').append(chatbox);
+    document.getElementById('filler').style.display = 'none';
+    document.getElementById('connections').appendChild(chatbox);
 
     c.on('data', function(data) {
       appendMessage(c, messages, data);
@@ -169,8 +169,8 @@ function connect(c) {
     c.on('close', function() {
           console.log(c.peer + ' has left the chat.');
           remove(chatbox);
-          if ($('.connection').length === 0) {
-            $('.filler').show();
+          if (Object.keys(connectedPeers).length === 0) {
+            document.getElementById('filler').style.display = 'block';
           }
           delete connectedPeers[c.peer];
         });
