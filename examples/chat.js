@@ -8,7 +8,6 @@
 // Showing off some of the configs available with PeerJS :).
 var mypeer
 var leaderID = 'thisIsTheLeaderID123';
-// TODO: use this
 
 function log(msg) {
   var logs = document.getElementById('log');
@@ -17,6 +16,7 @@ function log(msg) {
 }
 
 function createPeer() {
+  console.log("creating a peer")
   mypeer = new Peer(leaderID, {
     // set api key for cloud server (you don't need this if you're running your own)
     key: 'x7fwx2kavpy6tj4i',
@@ -158,8 +158,9 @@ function connect(c) {
   connectedPeers[c.peer] = 1;
 }
 
-(function() {
+window.onload = function() {
   // Create peer for webRTC
+  console.log("create a peer")
   createPeer()
 
   // Send a chat message to all active connections.
@@ -196,7 +197,7 @@ function connect(c) {
       checkedIds[peerId] = 1;
     });
   }
-});
+}
 
 // Make sure things clean up properly.
 window.onunload = window.onbeforeunload = function(e) {
