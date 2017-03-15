@@ -109,35 +109,66 @@ function connectToGame() {
     connectedPeers[leaderID] = 1;
 }
 
+function newChatbox(c) {
+  cbox = document.createElement('div');
+  cbox.className = 'connection active';
+  cbox.id = c.peer;
+  return cbox
+}
+
+function newHeader(c) {
+  // var header = $('<h1></h1>').html('Chat with <strong>' + c.peer + '</strong>');
+  header = document.createElement('h1');
+  header.innerHTML= 'Chat with <strong>' + c.peer + '</strong>';
+  return header
+}
+
+function newMessages(c) {
+  // var messages = $('<div><em>Peer connected.</em></div>').addClass('messages');
+  header = document.createElement('div');
+  em = document.createElement('em');
+  em.innerHTML= 'Peer connected.';
+  em.className = 'messages';
+  header.appendChild(em);
+  return header
+}
+
+function remove(element) {
+      element.parentNode.removeChild(element);
+}
+
+function appendMessage(c,  messages, data) {
+      wrapper = document.createElement('div');
+      peerSpan = document.createElement('span');
+      dataSpan = document.createElement('span');
+      peerSpan.className = 'peer';
+      peerSpan.innerHTML = c.peer;
+      dataSpan.innerHTML = ': ' + data;
+      wrapper.appendChild(peerSpan);
+      wrapper.appendChild(dataSpan);
+      messages.appendChild(wrapper);
+}
 
 // Handle a connection object.
 function connect(c) {
   // Handle a chat connection.
   if (c.label === 'chat') {
-    var chatbox = $('<div></div>').addClass('connection').addClass('active').attr('id', c.peer);
-    var header = $('<h1></h1>').html('Chat with <strong>' + c.peer + '</strong>');
-    var messages = $('<div><em>Peer connected.</em></div>').addClass('messages');
-    chatbox.append(header);
-    chatbox.append(messages);
+    var chatbox = newChatbox(c);
+    var header = newHeader(c);
+    var messages = newMessages(c);
+    chatbox.appendChild(header);
+    chatbox.appendChild(messages);
 
-    // Select connection handler.
-    chatbox.on('click', function() {
-      if ($(this).attr('class').indexOf('active') === -1) {
-        $(this).addClass('active');
-      } else {
-        $(this).removeClass('active');
-      }
-    });
     $('.filler').hide();
     $('#connections').append(chatbox);
 
     c.on('data', function(data) {
-      messages.append('<div><span class="peer">' + c.peer + '</span>: ' + data +
-        '</div>');
-        });
-        c.on('close', function() {
+      appendMessage(c, messages, data);
+    });
+
+    c.on('close', function() {
           console.log(c.peer + ' has left the chat.');
-          chatbox.remove();
+          remove(chatbox);
           if ($('.connection').length === 0) {
             $('.filler').show();
           }
