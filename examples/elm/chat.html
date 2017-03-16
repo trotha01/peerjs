@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>PeerJS chat demo</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Content-Language" content="en-us">
+
+<link href="fancy.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body>
+<!--
+  <div id="actions">
+    Your PeerJS ID is <span id="pid"></span><br>
+
+    <form id="send">
+      <input type="text" id="text" placeholder="Enter message">
+    </form>
+    <button id="close">Close selected connections</button>
+  </div>
+
+  <div id="wrap"><div id="connections"><span id="filler">You have not yet
+        made any connections.</span></div>
+    <div class="clear"></div></div>
+
+<div class="log" id="log" style="color:#FF7500;text-shadow:none;padding:15px;background:#eee"><strong>Connection status</strong>:<br></div>
+</div>
+-->
+
+<div id="webrtc"></div>
+
+<script type="text/javascript" src="../jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="../../dist/peer.js"></script>
+<script type='text/javascript' src='helper.js'></script>
+<script src="webrtc.js"></script>
+
+<script>
+  var app = Elm.Main.fullscreen();
+
+  var myPeer;
+
+  app.ports.createPeer.subscribe(function() {
+    console.log("> CREATE PEER");
+    myPeer = createPeer()
+
+    console.log("> WAITING TO OPEN");
+    myPeer.on('open', function(id){
+      console.log("OPENED!");
+      app.ports.opened.send(true);
+      // connect to first user, if this is not the first user
+      // if (id != leaderID) {
+      //     connectToGame()
+      // }
+      app.ports.peerID.send(id);
+    });
+  });
+
+  app.ports.createConnection.subscribe(function(id) {
+    console.log("> CREATE CONNECTION");
+    if (id != leaderID) {
+        connectToGame()
+    }
+  });
+
+  app.ports.sendData.subscribe(function(word) {
+    // var suggestions = spellCheck(word);
+    // app.ports.suggestions.send(suggestions);
+  });
+
+</script>
+</body>
+</html>
