@@ -3,6 +3,7 @@ port module Main exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Html.Events.Extra exposing (onEnter)
 
 
 -- import Html.Events.Extra exposing (..)
@@ -66,7 +67,7 @@ update msg model =
 view model =
     div []
         [ input
-            [ onInput Change
+            [ onInput SendData
               -- , onEnter SendData
             ]
             []

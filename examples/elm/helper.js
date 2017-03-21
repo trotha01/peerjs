@@ -26,31 +26,10 @@ function createPeer() {
     // set a logging function:
     logFunction: function() {
       var copy = Array.prototype.slice.call(arguments).join(' ');
-      log(copy);
+      console.log(copy);
     }
   });
-
-  mypeer.on('error', function(err) {
-    console.log(err);
-
-    // If first id is taken, generate a new one
-    // TODO: Maybe there's a way to use connect, to connect with a new id?
-    // mypeer.connect({
-    mypeer = new Peer({
-      // set api key for cloud server (you don't need this if you're running your
-      // own.
-      key: 'x7fwx2kavpy6tj4i',
-
-      // set highest debug level (log everything!).
-      debug: 3,
-
-      // set a logging function:
-      logFunction: function() {
-        var copy = Array.prototype.slice.call(arguments).join(' ');
-        log(copy);
-      }
-    });
-  })
+  setupPeer(myPeer);
 
   return mypeer;
 }
@@ -80,7 +59,7 @@ function setupPeer(myPeer) {
 }
 
 function connectToGame() {
-    console.log('connet');
+    console.log('connectToGame');
     if (!connectedPeers[leaderID]) {
 
       // Create 2 connections, one labelled chat and another labelled file.
@@ -145,8 +124,11 @@ function appendMessage(c,  messages, data) {
 
 // Handle a connection object.
 function connect(c) {
+  console.log('> CONNECTED')
   // Handle a chat connection.
   if (c.label === 'chat') {
+    console.log('chat', data)
+    /*
     var chatbox = newChatbox(c);
     var header = newHeader(c);
     var messages = newMessages(c);
@@ -155,34 +137,58 @@ function connect(c) {
 
     document.getElementById('filler').style.display = 'none';
     document.getElementById('connections').appendChild(chatbox);
+    */
 
     c.on('data', function(data) {
-      appendMessage(c, messages, data);
+      console.log('received data', data)
+      // appendMessage(c, messages, data);
     });
 
     c.on('close', function() {
           console.log(c.peer + ' has left the chat.');
-          remove(chatbox);
+          /* remove(chatbox);
           if (Object.keys(connectedPeers).length === 0) {
             document.getElementById('filler').style.display = 'block';
           }
+          */
           delete connectedPeers[c.peer];
         });
-  } else if (c.label === 'file') {
-    c.on('data', function(data) {
-      // If we're getting a file, create a URL for it.
-      if (data.constructor === ArrayBuffer) {
-        var dataView = new Uint8Array(data);
-        var dataBlob = new Blob([dataView]);
-        var url = window.URL.createObjectURL(dataBlob);
-        $('#' + c.peer).find('.messages').append('<div><span class="file">' +
-            c.peer + ' has sent you a <a target="_blank" href="' + url + '">file</a>.</span></div>');
-      }
-    });
   }
   connectedPeers[c.peer] = 1;
 }
 
+function sendMessage(data) {
+  for (var id in connectedPeers) {
+    console.log("> SENDING '" + data + "' to " + id);
+    var conns = mypeer.connections[id];
+    for (var i = 0, len = conns.length; i < len; i += 1) {
+      var conn = conns[i];
+      conn.send(data);
+    }
+  }
+}
+
+/*
+function eachActiveConnection(fn) {
+  var actives = $('.active');
+  var checkedIds = {};
+  actives.each(function() {
+    var peerId = $(this).attr('id');
+
+    if (!checkedIds[peerId]) {
+      var conns = mypeer.connections[peerId];
+      for (var i = 0, ii = conns.length; i < ii; i += 1) {
+        var conn = conns[i];
+        fn(conn, $(this));
+      }
+    }
+
+    checkedIds[peerId] = 1;
+  });
+}
+*/
+
+/*
 window.onload = function() {
   // Create peer for webRTC
   console.log("create a peer")
@@ -205,24 +211,8 @@ window.onload = function() {
   });
 
   // Goes through each active peer and calls FN on its connections.
-  function eachActiveConnection(fn) {
-    var actives = $('.active');
-    var checkedIds = {};
-    actives.each(function() {
-      var peerId = $(this).attr('id');
-
-      if (!checkedIds[peerId]) {
-        var conns = mypeer.connections[peerId];
-        for (var i = 0, ii = conns.length; i < ii; i += 1) {
-          var conn = conns[i];
-          fn(conn, $(this));
-        }
-      }
-
-      checkedIds[peerId] = 1;
-    });
-  }
 }
+*/
 
 // Make sure things clean up properly.
 window.onunload = window.onbeforeunload = function(e) {

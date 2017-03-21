@@ -54,6 +54,31 @@
       // }
       app.ports.peerID.send(id);
     });
+
+    mypeer.on('error', function(err) {
+      console.log("> ERROR!");
+      console.log(err);
+
+      // If first id is taken, generate a new one
+      // TODO: Maybe there's a way to use connect() to reconnect with a new id?
+      // mypeer.connect({...})
+      mypeer.destroy();
+      mypeer = new Peer({
+        // set api key for cloud server (you don't need this if you're running your
+        // own.
+        key: 'x7fwx2kavpy6tj4i',
+
+        // set highest debug level (log everything!).
+        debug: 3,
+
+        // set a logging function:
+        logFunction: function() {
+          var copy = Array.prototype.slice.call(arguments).join(' ');
+          console.log(copy);
+        }
+      });
+      setupPeer(myPeer);
+    })
   });
 
   app.ports.createConnection.subscribe(function(id) {
@@ -64,8 +89,8 @@
   });
 
   app.ports.sendData.subscribe(function(word) {
-    // var suggestions = spellCheck(word);
-    // app.ports.suggestions.send(suggestions);
+     console.log("> SEND " + word);
+     sendMessage(word)
   });
 
 </script>
