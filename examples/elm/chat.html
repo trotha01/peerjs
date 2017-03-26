@@ -10,27 +10,8 @@
 </head>
 
 <body>
-<!--
-  <div id="actions">
-    Your PeerJS ID is <span id="pid"></span><br>
-
-    <form id="send">
-      <input type="text" id="text" placeholder="Enter message">
-    </form>
-    <button id="close">Close selected connections</button>
-  </div>
-
-  <div id="wrap"><div id="connections"><span id="filler">You have not yet
-        made any connections.</span></div>
-    <div class="clear"></div></div>
-
-<div class="log" id="log" style="color:#FF7500;text-shadow:none;padding:15px;background:#eee"><strong>Connection status</strong>:<br></div>
-</div>
--->
-
 <div id="webrtc"></div>
 
-<script type="text/javascript" src="../jquery-1.10.2.min.js"></script>
 <script type="text/javascript" src="../../dist/peer.js"></script>
 <script type='text/javascript' src='helper.js'></script>
 <script src="webrtc.js"></script>
@@ -40,58 +21,31 @@
 
   var myPeer;
 
-  app.ports.createPeer.subscribe(function() {
+  app.ports.createPeer.subscribe(function(id) {
     console.log("> CREATE PEER");
-    myPeer = createPeer()
+    myPeer = createPeer(id)
 
     console.log("> WAITING TO OPEN");
     myPeer.on('open', function(id){
-      console.log("OPENED!");
-      app.ports.opened.send(true);
-      // connect to first user, if this is not the first user
-      // if (id != leaderID) {
-      //     connectToGame()
-      // }
-      app.ports.peerID.send(id);
+      console.log("> PEER OPENED!");
+      // console.log("> SEND ID: ", id);
+      // app.ports.peerID.send(id);
     });
 
     mypeer.on('error', function(err) {
       console.log("> ERROR!");
       console.log(err);
-
-      // If first id is taken, generate a new one
-      // TODO: Maybe there's a way to use connect() to reconnect with a new id?
-      // mypeer.connect({...})
-      mypeer.destroy();
-      mypeer = new Peer({
-        // set api key for cloud server (you don't need this if you're running your
-        // own.
-        key: 'x7fwx2kavpy6tj4i',
-
-        // set highest debug level (log everything!).
-        debug: 3,
-
-        // set a logging function:
-        logFunction: function() {
-          var copy = Array.prototype.slice.call(arguments).join(' ');
-          console.log(copy);
-        }
-      });
-      setupPeer(myPeer);
-    })
   });
 
-  app.ports.createConnection.subscribe(function(id) {
-    console.log("> CREATE CONNECTION");
-    if (id != leaderID) {
-        connectToGame()
-    }
+  app.ports.connectPeer.subscribe(function(peerId) {
+      connectToPeer(mypeer, peerId)
   });
 
   app.ports.sendData.subscribe(function(word) {
      console.log("> SEND " + word);
-     sendMessage(word)
+     sendMessage(mypeer, word);
   });
+});
 
 </script>
 </body>

@@ -23,11 +23,26 @@ main =
 
 
 type alias Model =
-    String
+    { id : String
+    , input : String
+    , messages : String
+    }
+
+
+leaderID =
+    "testing"
 
 
 init =
-    ( "testing", createPeer () )
+    let
+        model =
+            { id = ""
+            , peerId = ""
+            , input = ""
+            , messages = ""
+            }
+    in
+        ( model, Cmd.none )
 
 
 
@@ -35,29 +50,41 @@ init =
 
 
 type Msg
-    = Change String
-    | SendData String
+    = MessageInput String
+    | IdInput String
+    | PeerInput String
+    | ConnectPeer
+    | SendData
+    | SendId
     | RecvData String
-    | Opened Bool
     | NewID String
 
 
 update msg model =
     case msg of
-        Change newWord ->
-            ( newWord, Cmd.none )
+        MessageInput str ->
+            ( { model | input = str }, Cmd.none )
 
-        SendData msg ->
-            ( model, sendData <| Debug.log "senddata" msg )
+        IdInput str ->
+            ( { model | id = str }, Cmd.none )
+
+        PeerInput str ->
+            ( { model | peerId = str }, Cmd.none )
+
+        SendId ->
+            ( model, createPeer <| Debug.log "sendid" model.id )
+
+        ConnectPeer ->
+            ( model, connectPeer <| Debug.log "sendid" model.peerId )
+
+        SendData ->
+            ( model, sendData <| Debug.log "senddata" model.input )
 
         RecvData data ->
-            ( model ++ " " ++ data, Cmd.none )
-
-        Opened bool ->
-            ( model ++ " " ++ (Debug.log "opened" <| toString bool), Cmd.none )
+            ( { model | messages = model.messages ++ " " ++ data }, Cmd.none )
 
         NewID id ->
-            ( id, Cmd.none )
+            ( { model | id = id }, Cmd.none )
 
 
 
@@ -66,13 +93,42 @@ update msg model =
 
 view model =
     div []
+        [ div []
+            [ text ("ID: " ++ model.id) ]
+        , idInput
+        , peerInput
+        , messageInput
+        , div [] [ Html.text model.messages ]
+        ]
+
+
+idInput =
+    div []
         [ input
-            [ onInput SendData
-              -- , onEnter SendData
+            [ onInput IdInput
             ]
             []
-          -- , button [ onClick SendData ] [ text "Send" ]
-        , div [] [ Html.text model ]
+        , button [ onClick SendId ] [ text "Create" ]
+        ]
+
+
+peerInput =
+    div []
+        [ input
+            [ onInput PeerInput
+            ]
+            []
+        , button [ onClick ConnectPeer ] [ text "Connect" ]
+        ]
+
+
+messageInput =
+    div []
+        [ input
+            [ onInput MessageInput
+            ]
+            []
+        , button [ onClick SendData ] [ text "Send" ]
         ]
 
 
@@ -84,7 +140,6 @@ subscriptions model =
     Sub.batch
         [ recvData RecvData
         , peerID NewID
-        , opened Opened
         ]
 
 
@@ -92,13 +147,10 @@ subscriptions model =
 -- PORTS
 
 
-port createPeer : () -> Cmd msg
+port createPeer : String -> Cmd msg
 
 
-port createConnection : Int -> Cmd msg
-
-
-port opened : (Bool -> msg) -> Sub msg
+port connectPeer : String -> Cmd msg
 
 
 port peerID : (String -> msg) -> Sub msg

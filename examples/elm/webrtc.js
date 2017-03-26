@@ -8444,23 +8444,26 @@ var _elm_community$html_extra$Html_Events_Extra$charCode = A2(
 	},
 	A2(_elm_lang$core$Json_Decode$field, 'charCode', _elm_lang$core$Json_Decode$string));
 
+var _user$project$Main$init = function () {
+	var model = {id: '', peerId: '', input: '', messages: ''};
+	return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+}();
+var _user$project$Main$leaderID = 'testing';
 var _user$project$Main$createPeer = _elm_lang$core$Native_Platform.outgoingPort(
 	'createPeer',
 	function (v) {
-		return null;
+		return v;
 	});
-var _user$project$Main$init = {
-	ctor: '_Tuple2',
-	_0: 'testing',
-	_1: _user$project$Main$createPeer(
-		{ctor: '_Tuple0'})
-};
+var _user$project$Main$connectPeer = _elm_lang$core$Native_Platform.outgoingPort(
+	'connectPeer',
+	function (v) {
+		return v;
+	});
 var _user$project$Main$createConnection = _elm_lang$core$Native_Platform.outgoingPort(
 	'createConnection',
 	function (v) {
 		return v;
 	});
-var _user$project$Main$opened = _elm_lang$core$Native_Platform.incomingPort('opened', _elm_lang$core$Json_Decode$bool);
 var _user$project$Main$peerID = _elm_lang$core$Native_Platform.incomingPort('peerID', _elm_lang$core$Json_Decode$string);
 var _user$project$Main$sendData = _elm_lang$core$Native_Platform.outgoingPort(
 	'sendData',
@@ -8471,49 +8474,81 @@ var _user$project$Main$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
 		switch (_p0.ctor) {
-			case 'Change':
-				return {ctor: '_Tuple2', _0: _p0._0, _1: _elm_lang$core$Platform_Cmd$none};
+			case 'MessageInput':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{input: _p0._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'IdInput':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{id: _p0._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'PeerInput':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{peerId: _p0._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'SendId':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Main$createPeer(
+						A2(_elm_lang$core$Debug$log, 'sendid', model.id))
+				};
+			case 'ConnectPeer':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Main$connectPeer(
+						A2(_elm_lang$core$Debug$log, 'sendid', model.peerId))
+				};
 			case 'SendData':
 				return {
 					ctor: '_Tuple2',
 					_0: model,
 					_1: _user$project$Main$sendData(
-						A2(_elm_lang$core$Debug$log, 'senddata', _p0._0))
+						A2(_elm_lang$core$Debug$log, 'senddata', model.input))
 				};
 			case 'RecvData':
 				return {
 					ctor: '_Tuple2',
-					_0: A2(
-						_elm_lang$core$Basics_ops['++'],
+					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						A2(_elm_lang$core$Basics_ops['++'], ' ', _p0._0)),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'Opened':
-				return {
-					ctor: '_Tuple2',
-					_0: A2(
-						_elm_lang$core$Basics_ops['++'],
-						model,
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							' ',
-							A2(
-								_elm_lang$core$Debug$log,
-								'opened',
-								_elm_lang$core$Basics$toString(_p0._0)))),
+						{
+							messages: A2(
+								_elm_lang$core$Basics_ops['++'],
+								model.messages,
+								A2(_elm_lang$core$Basics_ops['++'], ' ', _p0._0))
+						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			default:
-				return {ctor: '_Tuple2', _0: _p0._0, _1: _elm_lang$core$Platform_Cmd$none};
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{id: _p0._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 		}
 	});
 var _user$project$Main$recvData = _elm_lang$core$Native_Platform.incomingPort('recvData', _elm_lang$core$Json_Decode$string);
+var _user$project$Main$Model = F3(
+	function (a, b, c) {
+		return {id: a, input: b, messages: c};
+	});
 var _user$project$Main$NewID = function (a) {
 	return {ctor: 'NewID', _0: a};
-};
-var _user$project$Main$Opened = function (a) {
-	return {ctor: 'Opened', _0: a};
 };
 var _user$project$Main$RecvData = function (a) {
 	return {ctor: 'RecvData', _0: a};
@@ -8526,17 +8561,112 @@ var _user$project$Main$subscriptions = function (model) {
 			_1: {
 				ctor: '::',
 				_0: _user$project$Main$peerID(_user$project$Main$NewID),
-				_1: {
-					ctor: '::',
-					_0: _user$project$Main$opened(_user$project$Main$Opened),
-					_1: {ctor: '[]'}
-				}
+				_1: {ctor: '[]'}
 			}
 		});
 };
-var _user$project$Main$SendData = function (a) {
-	return {ctor: 'SendData', _0: a};
+var _user$project$Main$SendId = {ctor: 'SendId'};
+var _user$project$Main$SendData = {ctor: 'SendData'};
+var _user$project$Main$ConnectPeer = {ctor: 'ConnectPeer'};
+var _user$project$Main$PeerInput = function (a) {
+	return {ctor: 'PeerInput', _0: a};
 };
+var _user$project$Main$peerInput = A2(
+	_elm_lang$html$Html$div,
+	{ctor: '[]'},
+	{
+		ctor: '::',
+		_0: A2(
+			_elm_lang$html$Html$input,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$PeerInput),
+				_1: {ctor: '[]'}
+			},
+			{ctor: '[]'}),
+		_1: {
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$button,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$ConnectPeer),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Connect'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {ctor: '[]'}
+		}
+	});
+var _user$project$Main$IdInput = function (a) {
+	return {ctor: 'IdInput', _0: a};
+};
+var _user$project$Main$idInput = A2(
+	_elm_lang$html$Html$div,
+	{ctor: '[]'},
+	{
+		ctor: '::',
+		_0: A2(
+			_elm_lang$html$Html$input,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$IdInput),
+				_1: {ctor: '[]'}
+			},
+			{ctor: '[]'}),
+		_1: {
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$button,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$SendId),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Create'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {ctor: '[]'}
+		}
+	});
+var _user$project$Main$MessageInput = function (a) {
+	return {ctor: 'MessageInput', _0: a};
+};
+var _user$project$Main$messageInput = A2(
+	_elm_lang$html$Html$div,
+	{ctor: '[]'},
+	{
+		ctor: '::',
+		_0: A2(
+			_elm_lang$html$Html$input,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$MessageInput),
+				_1: {ctor: '[]'}
+			},
+			{ctor: '[]'}),
+		_1: {
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$button,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$SendData),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Send'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {ctor: '[]'}
+		}
+	});
 var _user$project$Main$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -8544,32 +8674,42 @@ var _user$project$Main$view = function (model) {
 		{
 			ctor: '::',
 			_0: A2(
-				_elm_lang$html$Html$input,
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$SendData),
+					_0: _elm_lang$html$Html$text(
+						A2(_elm_lang$core$Basics_ops['++'], 'ID: ', model.id)),
 					_1: {ctor: '[]'}
-				},
-				{ctor: '[]'}),
+				}),
 			_1: {
 				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{ctor: '[]'},
-					{
+				_0: _user$project$Main$idInput,
+				_1: {
+					ctor: '::',
+					_0: _user$project$Main$peerInput,
+					_1: {
 						ctor: '::',
-						_0: _elm_lang$html$Html$text(model),
-						_1: {ctor: '[]'}
-					}),
-				_1: {ctor: '[]'}
+						_0: _user$project$Main$messageInput,
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$div,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text(model.messages),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						}
+					}
+				}
 			}
 		});
 };
 var _user$project$Main$main = _elm_lang$html$Html$program(
 	{init: _user$project$Main$init, view: _user$project$Main$view, update: _user$project$Main$update, subscriptions: _user$project$Main$subscriptions})();
-var _user$project$Main$Change = function (a) {
-	return {ctor: 'Change', _0: a};
-};
 
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
