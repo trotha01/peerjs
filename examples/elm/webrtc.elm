@@ -73,13 +73,13 @@ update msg model =
             ( { model | peerId = str }, Cmd.none )
 
         SendId ->
-            ( model, createPeer <| Debug.log "sendid" model.id )
+            ( model, createPeer model.id )
 
         ConnectPeer ->
-            ( model, connectPeer <| Debug.log "sendid" model.peerId )
+            ( model, connectPeer model.peerId )
 
         SendData ->
-            ( model, sendData <| Debug.log "senddata" model.input )
+            ( { model | messages = model.messages ++ [ ( model.id, model.input ) ] }, sendData model.input )
 
         RecvData ( id, data ) ->
             ( { model | messages = model.messages ++ [ ( id, data ) ] }, Cmd.none )

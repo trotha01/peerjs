@@ -8517,22 +8517,30 @@ var _user$project$Main$update = F2(
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: _user$project$Main$createPeer(
-						A2(_elm_lang$core$Debug$log, 'sendid', model.id))
+					_1: _user$project$Main$createPeer(model.id)
 				};
 			case 'ConnectPeer':
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: _user$project$Main$connectPeer(
-						A2(_elm_lang$core$Debug$log, 'sendid', model.peerId))
+					_1: _user$project$Main$connectPeer(model.peerId)
 				};
 			case 'SendData':
 				return {
 					ctor: '_Tuple2',
-					_0: model,
-					_1: _user$project$Main$sendData(
-						A2(_elm_lang$core$Debug$log, 'senddata', model.input))
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							messages: A2(
+								_elm_lang$core$Basics_ops['++'],
+								model.messages,
+								{
+									ctor: '::',
+									_0: {ctor: '_Tuple2', _0: model.id, _1: model.input},
+									_1: {ctor: '[]'}
+								})
+						}),
+					_1: _user$project$Main$sendData(model.input)
 				};
 			case 'RecvData':
 				return {

@@ -63,9 +63,6 @@ function connect(myPeer, c, f) {
     });
 
     connectedPeers[c.peer] = c;
-
-    // test send
-    sendMessage('hello there!')
   }
 }
 
@@ -78,14 +75,6 @@ function sendMessage(data) {
     console.log("> SENDING '" + data + "' to " + id);
     var conn = connectedPeers[id];
     conn.send(data);
-
-    /*
-    var conns = myPeer.connections[id];
-    for (var i = 0, len = conns.length; i < len; i += 1) {
-      var conn = conns[i];
-      conn.send(data);
-    }
-    */
   }
 }
 
