@@ -1,8 +1,11 @@
-var connectedPeers = {};
 
 function createPeer(id) {
   console.log("> CREATING A PEER")
-  mypeer = new Peer(id, {
+  myPeer = new Peer(id, {
+    // host: 'localhost',
+    // port: 9000,
+    // path: '/',
+
     // set api key for cloud server (you don't need this if you're running your own)
     key: 'x7fwx2kavpy6tj4i',
     id: 'inthebeginning',
@@ -17,23 +20,13 @@ function createPeer(id) {
     }
   });
 
-  return mypeer;
+  return myPeer;
 }
 
-function setupPeer(myPeer) {
-  // Show this peer's ID.
-  mypeer.on('open', function(id){
-    console.log("> OPENED: ", id);
-  });
-
-  // Await connections from others
-  mypeer.on('connection', connect);
-}
-
-function connectToPeer(mypeer, peerID) {
+function connectToPeer(myPeer, peerID, f) {
   console.log('> CONNECT TO PEER: ' + peerID);
 
-  var c = mypeer.connect(peerID, {
+  var c = myPeer.connect(peerID, {
     label: 'chat',
     serialization: 'none',
     metadata: {message: 'hi i want to chat with you!'}
@@ -41,48 +34,65 @@ function connectToPeer(mypeer, peerID) {
 
   c.on('open', function() {
     console.log("> CONNECTION OPEN");
-    connect(c);
+    connectedPeers[peerID] = 1;
+    connect(myPeer, c, f);
   });
+
   c.on('error', function(err) {
     console.log("> CONNECTION ERROR: " + err);
   });
 
-  connectedPeers[peerID] = 1;
 }
 
 // Handle a connection object.
-function connect(c) {
-  console.log('> CONNECT: ', c.label)
+// When data is recieved, call f([id, data])
+function connect(myPeer, c, f) {
+  console.log('> RECEIVED A CONNECTION FROM ' + c.peer)
   // Handle a chat connection.
   if (c.label === 'chat') {
+
     console.log('> WAITING FOR DATA')
     c.on('data', function(data) {
       console.log('> RECEIVED DATA: ', data)
+      f([c.peer, data])
     });
 
     c.on('close', function() {
-          console.log(c.peer + ' has left the chat.');
-          delete connectedPeers[c.peer];
-        });
+      console.log(c.peer + ' has left the chat.');
+      delete connectedPeers[c.peer];
+    });
+
+    connectedPeers[c.peer] = c;
+
+    // test send
+    sendMessage('hello there!')
   }
-  connectedPeers[c.peer] = 1;
 }
 
-function sendMessage(mypeer, data) {
+function sendMessage(data) {
+  if (Object.keys(connectedPeers).length === 0) {
+    console.log("no peers to send to :(");
+    return
+  }
   for (var id in connectedPeers) {
     console.log("> SENDING '" + data + "' to " + id);
-    var conns = mypeer.connections[id];
+    var conn = connectedPeers[id];
+    conn.send(data);
+
+    /*
+    var conns = myPeer.connections[id];
     for (var i = 0, len = conns.length; i < len; i += 1) {
       var conn = conns[i];
       conn.send(data);
     }
+    */
   }
 }
 
 // Make sure things clean up properly.
 window.onunload = window.onbeforeunload = function(e) {
-  if (!!mypeer && !mypeer.destroyed) {
-    mypeer.destroy();
+  if (!!myPeer && !myPeer.destroyed) {
+    myPeer.destroy();
   }
 };
 

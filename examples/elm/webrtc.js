@@ -8444,8 +8444,28 @@ var _elm_community$html_extra$Html_Events_Extra$charCode = A2(
 	},
 	A2(_elm_lang$core$Json_Decode$field, 'charCode', _elm_lang$core$Json_Decode$string));
 
+var _user$project$Main$viewMessage = function (_p0) {
+	var _p1 = _p0;
+	return A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html$text(
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					_p1._0,
+					A2(_elm_lang$core$Basics_ops['++'], ': ', _p1._1))),
+			_1: {ctor: '[]'}
+		});
+};
 var _user$project$Main$init = function () {
-	var model = {id: '', peerId: '', input: '', messages: ''};
+	var model = {
+		id: '',
+		peerId: '',
+		input: '',
+		messages: {ctor: '[]'}
+	};
 	return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 }();
 var _user$project$Main$leaderID = 'testing';
@@ -8459,11 +8479,6 @@ var _user$project$Main$connectPeer = _elm_lang$core$Native_Platform.outgoingPort
 	function (v) {
 		return v;
 	});
-var _user$project$Main$createConnection = _elm_lang$core$Native_Platform.outgoingPort(
-	'createConnection',
-	function (v) {
-		return v;
-	});
 var _user$project$Main$peerID = _elm_lang$core$Native_Platform.incomingPort('peerID', _elm_lang$core$Json_Decode$string);
 var _user$project$Main$sendData = _elm_lang$core$Native_Platform.outgoingPort(
 	'sendData',
@@ -8472,14 +8487,14 @@ var _user$project$Main$sendData = _elm_lang$core$Native_Platform.outgoingPort(
 	});
 var _user$project$Main$update = F2(
 	function (msg, model) {
-		var _p0 = msg;
-		switch (_p0.ctor) {
+		var _p2 = msg;
+		switch (_p2.ctor) {
 			case 'MessageInput':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{input: _p0._0}),
+						{input: _p2._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'IdInput':
@@ -8487,7 +8502,7 @@ var _user$project$Main$update = F2(
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{id: _p0._0}),
+						{id: _p2._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'PeerInput':
@@ -8495,7 +8510,7 @@ var _user$project$Main$update = F2(
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{peerId: _p0._0}),
+						{peerId: _p2._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'SendId':
@@ -8528,7 +8543,11 @@ var _user$project$Main$update = F2(
 							messages: A2(
 								_elm_lang$core$Basics_ops['++'],
 								model.messages,
-								A2(_elm_lang$core$Basics_ops['++'], ' ', _p0._0))
+								{
+									ctor: '::',
+									_0: {ctor: '_Tuple2', _0: _p2._0._0, _1: _p2._0._1},
+									_1: {ctor: '[]'}
+								})
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -8537,15 +8556,28 @@ var _user$project$Main$update = F2(
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{id: _p0._0}),
+						{id: _p2._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 		}
 	});
-var _user$project$Main$recvData = _elm_lang$core$Native_Platform.incomingPort('recvData', _elm_lang$core$Json_Decode$string);
-var _user$project$Main$Model = F3(
-	function (a, b, c) {
-		return {id: a, input: b, messages: c};
+var _user$project$Main$recvData = _elm_lang$core$Native_Platform.incomingPort(
+	'recvData',
+	A2(
+		_elm_lang$core$Json_Decode$andThen,
+		function (x0) {
+			return A2(
+				_elm_lang$core$Json_Decode$andThen,
+				function (x1) {
+					return _elm_lang$core$Json_Decode$succeed(
+						{ctor: '_Tuple2', _0: x0, _1: x1});
+				},
+				A2(_elm_lang$core$Json_Decode$index, 1, _elm_lang$core$Json_Decode$string));
+		},
+		A2(_elm_lang$core$Json_Decode$index, 0, _elm_lang$core$Json_Decode$string)));
+var _user$project$Main$Model = F4(
+	function (a, b, c, d) {
+		return {id: a, input: b, messages: c, peers: d};
 	});
 var _user$project$Main$NewID = function (a) {
 	return {ctor: 'NewID', _0: a};
@@ -8696,11 +8728,7 @@ var _user$project$Main$view = function (model) {
 							_0: A2(
 								_elm_lang$html$Html$div,
 								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text(model.messages),
-									_1: {ctor: '[]'}
-								}),
+								A2(_elm_lang$core$List$map, _user$project$Main$viewMessage, model.messages)),
 							_1: {ctor: '[]'}
 						}
 					}

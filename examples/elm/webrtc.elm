@@ -25,7 +25,8 @@ main =
 type alias Model =
     { id : String
     , input : String
-    , messages : String
+    , messages : List ( String, String )
+    , peers : List String
     }
 
 
@@ -39,7 +40,7 @@ init =
             { id = ""
             , peerId = ""
             , input = ""
-            , messages = ""
+            , messages = []
             }
     in
         ( model, Cmd.none )
@@ -56,7 +57,7 @@ type Msg
     | ConnectPeer
     | SendData
     | SendId
-    | RecvData String
+    | RecvData ( String, String )
     | NewID String
 
 
@@ -80,8 +81,8 @@ update msg model =
         SendData ->
             ( model, sendData <| Debug.log "senddata" model.input )
 
-        RecvData data ->
-            ( { model | messages = model.messages ++ " " ++ data }, Cmd.none )
+        RecvData ( id, data ) ->
+            ( { model | messages = model.messages ++ [ ( id, data ) ] }, Cmd.none )
 
         NewID id ->
             ( { model | id = id }, Cmd.none )
@@ -98,8 +99,12 @@ view model =
         , idInput
         , peerInput
         , messageInput
-        , div [] [ Html.text model.messages ]
+        , div [] (List.map viewMessage model.messages)
         ]
+
+
+viewMessage ( id, msg ) =
+    div [] [ Html.text (id ++ ": " ++ msg) ]
 
 
 idInput =
@@ -159,4 +164,4 @@ port peerID : (String -> msg) -> Sub msg
 port sendData : String -> Cmd msg
 
 
-port recvData : (String -> msg) -> Sub msg
+port recvData : (( String, String ) -> msg) -> Sub msg
